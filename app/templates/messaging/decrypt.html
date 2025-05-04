@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}Decrypt Message{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto bg-white rounded-xl shadow-md overflow-hidden p-6">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold">
+            {% if message.sender_id == current_user.id %}
+                Message to {{ message.recipient.username }}
+            {% else %}
+                Message from {{ message.sender.username }}
+            {% endif %}
+        </h1>
+        <span class="text-gray-500">{{ message.timestamp.strftime('%Y-%m-%d %H:%M') }}</span>
+    </div>
+
+    {% if message.is_file %}
+        <div class="mb-6 p-4 bg-gray-50 rounded-lg">
+            <div class="flex items-center mb-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                </svg>
+                <span class="font-semibold">{{ message.file_name }}</span>
+            </div>
+            <div class="text-sm text-gray-600 mb-4">
+                <span class="mr-4">Type: {{ message.file_type }}</span>
+                <span>Size: {{ (message.file_size / 1024)|round(2) }} KB</span>
+            </div>
+            <a href="{{ url_for('messaging.download_file', message_id=message.id) }}" class="inline-flex items-center px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" />
+                </svg>
+                Download Decrypted File
+            </a>
+        </div>
+    {% endif %}
+
+    <div class="mb-6">
+        <h2 class="text-lg font-semibold mb-2">Encrypted Content</h2>
+        <div class="bg-gray-800 text-green-400 p-4 rounded-lg overflow-x-auto">
+            <code class="text-sm">{{ message.encrypted_content[:100] }}...</code>
+        </div>
+    </div>
+
+    <div class="mb-6">
+        <h2 class="text-lg font-semibold mb-2">Decrypted Content</h2>
+        {% if message.is_file %}
+            <p class="text-gray-700">File content cannot be displayed here. Please download the file to view its contents.</p>
+        {% else %}
+            <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                <p class="whitespace-pre-wrap">{{ decrypted_content }}</p>
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="flex justify-between items-center">
+        <a href="{{ url_for('messaging.dashboard') }}" class="text-blue-500 hover:text-blue-700 font-medium">
+            &larr; Back to Dashboard
+        </a>
+        {% if not message.is_file %}
+            <div class="text-sm text-gray-500">
+                Hash Verification: 
+                <span class="font-semibold {% if generate_hash(decrypted_content) == message.hash_value %}text-green-600{% else %}text-red-600{% endif %}">
+                    {% if generate_hash(decrypted_content) == message.hash_value %}
+                        Verified (No tampering detected)
+                    {% else %}
+                        Failed (Possible tampering)
+                    {% endif %}
+                </span>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

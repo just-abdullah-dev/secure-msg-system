@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <!-- Send Message Card -->
+    <div class="md:col-span-2 bg-white rounded-lg shadow-md p-6">
+        <h2 class="text-xl font-bold mb-4">Send Secure Message</h2>
+        <form method="POST" action="{{ url_for('messaging.send_message') }}">
+            <div class="mb-4">
+                <label for="recipient" class="block text-gray-700 text-sm font-bold mb-2">Recipient</label>
+                <select name="recipient_id" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required>
+                    <option value="">Select a recipient</option>
+                    {% for user in users %}
+                        <option value="{{ user.id }}">{{ user.username }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="mb-4">
+                <label for="message" class="block text-gray-700 text-sm font-bold mb-2">Message</label>
+                <textarea name="message" rows="4" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required></textarea>
+            </div>
+            <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                Encrypt & Send
+            </button>
+        </form>
+    </div>
+
+    <!-- Upload File Card -->
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <h2 class="text-xl font-bold mb-4">Send Encrypted File</h2>
+        <form method="POST" action="{{ url_for('messaging.upload_file') }}" enctype="multipart/form-data">
+            <div class="mb-4">
+                <label for="recipient" class="block text-gray-700 text-sm font-bold mb-2">Recipient</label>
+                <select name="recipient_id" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required>
+                    <option value="">Select a recipient</option>
+                    {% for user in users %}
+                        <option value="{{ user.id }}">{{ user.username }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="mb-4">
+                <label for="file" class="block text-gray-700 text-sm font-bold mb-2">File</label>
+                <input type="file" name="file" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required>
+            </div>
+            <button type="submit" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                Encrypt & Upload
+            </button>
+        </form>
+    </div>
+
+    <!-- Recent Messages Card -->
+    <div class="md:col-span-3 bg-white rounded-lg shadow-md p-6">
+        <h2 class="text-xl font-bold mb-4">Recent Messages</h2>
+        {% if messages %}
+            <div class="space-y-4">
+                {% for message in messages %}
+                    <div class="border-b pb-4">
+                        <div class="flex justify-between items-center mb-2">
+                            <div>
+                                <span class="font-semibold">
+                                    {% if message.sender_id == current_user.id %}
+                                        You to {{ message.recipient.username }}
+                                    {% else %}
+                                        {{ message.sender.username }} to You
+                                    {% endif %}
+                                </span>
+                                <span class="text-gray-500 text-sm ml-2">{{ message.timestamp.strftime('%Y-%m-%d %H:%M') }}</span>
+                            </div>
+                            <a href="{{ url_for('messaging.decrypt_message', message_id=message.id) }}" class="text-blue-500 hover:text-blue-700 text-sm font-medium">
+                                View/Decrypt
+                            </a>
+                        </div>
+                        <p class="text-gray-700 truncate">
+                            {% if message.is_file %}
+                                <span class="text-green-600">File:</span> {{ message.file_name }} ({{ (message.file_size / 1024)|round(2) }} KB)
+                            {% else %}
+                                {{ message.content[:100] }}{% if message.content|length > 100 %}...{% endif %}
+                            {% endif %}
+                        </p>
+                    </div>
+                {% endfor %}
+            </div>
+            <div class="mt-4 text-center">
+                <a href="{{ url_for('messaging.view_messages') }}" class="text-blue-500 hover:text-blue-700 font-medium">View All Messages</a>
+            </div>
+        {% else %}
+            <p class="text-gray-500">No messages yet. Send your first secure message!</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

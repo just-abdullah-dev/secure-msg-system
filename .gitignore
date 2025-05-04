@@ -1,0 +1,93 @@
+# .gitignore for Secure Messaging System Project
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+venv/
+ENV/
+.env/
+.venv/
+
+# Environment variables
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+
+# IDE specific files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Database files
+*.sqlite
+*.db
+*.sql
+
+# Log files
+*.log
+logs/
+
+# Testing
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Python packaging
+*.egg-info/
+dist/
+build/
+*.egg
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Encryption keys (never commit these!)
+*.key
+*.pem
+*.cert
+
+# Session files
+*.session
+
+# Flask secret key
+secret_key.txt
+
+# Large files
+*.large
+
+# Temporary files
+*.tmp
+*.temp
+
+# Documentation
+docs/_build/
+
+# Visual Studio Code
+.vscode/settings.json
+.vscode/launch.json
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# VS Code specific
+.history/
+
+# SQLite (if used)
+instance/
+
+# Debug files
+*.debug
+
+# Local development files
+local_settings.py
